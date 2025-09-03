@@ -1,0 +1,270 @@
+<div class="container">
+  <header class="text-center mb-4">
+    <div class="logo-section mb-3">
+      <span class="material-icons logo-icon">work</span>
+      <h1 class="brand-name">MyJobs</h1>
+    </div>
+    <div class="welcome-section mb-3">
+      <h2 class="welcome-title">
+        <span class="material-icons" style="font-size: 32px; vertical-align: middle; margin-right: 12px;">calculate</span>
+        Calculadora de Rescisão CLT
+      </h2>
+      <p class="welcome-text">Seja bem-vindo ao MyJobs! Calcule sua rescisão trabalhista de forma rápida e precisa conforme a CLT brasileira.</p>
+      <p class="subtitle">Tenha controle total sobre seus direitos trabalhistas</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <form #rescisaoForm="ngForm" (ngSubmit)="calcularRescisao()">
+      <h2 class="mb-3">
+        <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">person</span>
+        Dados do Funcionário
+      </h2>
+      
+      <div class="form-group">
+        <label class="form-label" for="salario">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">attach_money</span>
+          Salário Bruto Mensal (R$)
+        </label>
+        <input 
+          type="number" 
+          id="salario" 
+          name="salario" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.salario" 
+          placeholder="Ex: 3000.00"
+          step="0.01"
+          min="0"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="dataAdmissao">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">event</span>
+          Data de Admissão
+        </label>
+        <input 
+          type="date" 
+          id="dataAdmissao" 
+          name="dataAdmissao" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.dataAdmissao"
+          placeholder="dd/mm/yyyy"
+          pattern="\d{2}/\d{2}/\d{4}"
+          title="Digite a data no formato dd/mm/yyyy"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="dataDemissao">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">event_busy</span>
+          Data de Demissão
+        </label>
+        <input 
+          type="date" 
+          id="dataDemissao" 
+          name="dataDemissao" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.dataDemissao"
+          placeholder="dd/mm/yyyy"
+          pattern="\d{2}/\d{2}/\d{4}"
+          title="Digite a data no formato dd/mm/yyyy"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="tipoRescisao">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">gavel</span>
+          Tipo de Rescisão
+        </label>
+        <select 
+          id="tipoRescisao" 
+          name="tipoRescisao" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.tipoRescisao"
+          required>
+          <option value="">Selecione o tipo de rescisão</option>
+          <option value="demissao-sem-justa-causa">Demissão sem justa causa</option>
+          <option value="demissao-com-justa-causa">Demissão com justa causa</option>
+          <option value="pedido-demissao">Pedido de demissão</option>
+          <option value="acordo-mutuo">Acordo mútuo</option>
+          <option value="termino-contrato">Término de contrato</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="diasFeriasVencidas">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">beach_access</span>
+          Dias de Férias Vencidas
+        </label>
+        <input 
+          type="number" 
+          id="diasFeriasVencidas" 
+          name="diasFeriasVencidas" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.diasFeriasVencidas" 
+          placeholder="Ex: 30"
+          min="0"
+          max="30">
+      </div>
+
+
+
+      <div class="form-group">
+        <label class="form-label" for="saldoFgts">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">account_balance</span>
+          Saldo FGTS (R$)
+        </label>
+        <input 
+          type="number" 
+          id="saldoFgts" 
+          name="saldoFgts" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.saldoFgts" 
+          placeholder="Ex: 5000.00"
+          step="0.01"
+          min="0">
+      </div>
+
+      <div class="form-group" *ngIf="dadosFuncionario.tipoRescisao === 'demissao-sem-justa-causa' || dadosFuncionario.tipoRescisao === 'acordo-mutuo'">
+        <label class="form-label" for="temAvisoPrevio">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">schedule</span>
+          Aviso Prévio
+        </label>
+        <select 
+          id="temAvisoPrevio" 
+          name="temAvisoPrevio" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.temAvisoPrevio">
+          <option value="">Selecione uma opção</option>
+          <option value="sim">Sim, houve aviso prévio</option>
+          <option value="nao">Não, sem aviso prévio</option>
+        </select>
+      </div>
+
+      <div class="form-group" *ngIf="dadosFuncionario.temAvisoPrevio === 'sim'">
+        <label class="form-label" for="tipoAvisoPrevio">
+          <span class="material-icons" style="font-size: 20px; vertical-align: middle; margin-right: 4px;">work_outline</span>
+          Tipo de Aviso Prévio
+        </label>
+        <select 
+          id="tipoAvisoPrevio" 
+          name="tipoAvisoPrevio" 
+          class="form-input" 
+          [(ngModel)]="dadosFuncionario.tipoAvisoPrevio"
+          [required]="dadosFuncionario.temAvisoPrevio === 'sim'">
+          <option value="">Selecione o tipo</option>
+          <option value="indenizado">Indenizado</option>
+          <option value="trabalhado">Trabalhado</option>
+        </select>
+      </div>
+
+      <button type="button" class="btn btn-primary" (click)="calcularRescisao()" [disabled]="!dadosFuncionario.salario || !dadosFuncionario.dataAdmissao || !dadosFuncionario.dataDemissao || !dadosFuncionario.tipoRescisao">
+        <span class="material-icons">calculate</span>
+        Calcular Rescisão
+      </button>
+    </form>
+  </div>
+
+  <div class="results-section" *ngIf="resultadoCalculado">
+    <h2 class="results-title mb-4">
+      <span class="material-icons" style="vertical-align: middle; margin-right: 8px;">receipt</span>
+      Resultado do Cálculo de Rescisão
+    </h2>
+    
+    <!-- Card de Valores a Receber -->
+    <div class="result-card positive-card mb-3">
+      <div class="card-header">
+        <span class="material-icons">trending_up</span>
+        <h3>Valores a Receber</h3>
+      </div>
+      <div class="card-content">
+        <div class="resultado-item" *ngFor="let item of valoresReceber">
+          <div class="item-row">
+            <span class="item-description">{{ item.descricao }}</span>
+            <span class="item-value positive">{{ item.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="subtotal-row">
+          <span class="subtotal-label">Subtotal a Receber:</span>
+          <span class="subtotal-value positive">{{ totalReceber | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de FGTS -->
+    <div class="result-card fgts-card mb-3">
+      <div class="card-header">
+        <span class="material-icons">account_balance</span>
+        <h3>FGTS</h3>
+      </div>
+      <div class="card-content">
+        <div class="resultado-item" *ngFor="let item of valoresFgts">
+          <div class="item-row">
+            <span class="item-description">{{ item.descricao }}</span>
+            <span class="item-value fgts">{{ item.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="subtotal-row">
+          <span class="subtotal-label">Total FGTS:</span>
+          <span class="subtotal-value fgts">{{ totalFgts | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Descontos -->
+    <div class="result-card negative-card mb-3" *ngIf="totalDescontos > 0">
+      <div class="card-header">
+        <span class="material-icons">trending_down</span>
+        <h3>Descontos</h3>
+      </div>
+      <div class="card-content">
+        <div class="resultado-item" *ngFor="let item of valoresDescontos">
+          <div class="item-row">
+            <span class="item-description">{{ item.descricao }}</span>
+            <span class="item-value negative">-{{ item.valor | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="subtotal-row">
+          <span class="subtotal-label">Total Descontos:</span>
+          <span class="subtotal-value negative">-{{ totalDescontos | currency:'BRL':'symbol':'1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card de Total Final -->
+    <div class="result-card total-card mb-3">
+      <div class="card-header">
+        <span class="material-icons">account_balance_wallet</span>
+        <h3>Resumo Final</h3>
+      </div>
+      <div class="card-content">
+        <div class="total-breakdown">
+          <div class="breakdown-item">
+            <span>Valores a Receber:</span>
+            <span class="positive">{{ totalReceber | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="breakdown-item" *ngIf="totalDescontos > 0">
+            <span>Descontos:</span>
+            <span class="negative">-{{ totalDescontos | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="final-total">
+            <span class="total-label">TOTAL LÍQUIDO A RECEBER:</span>
+            <span class="total-value">{{ totalLiquido | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+          <div class="fgts-info">
+            <span class="fgts-label">FGTS (disponível para saque):</span>
+            <span class="fgts-value">{{ totalFgts | currency:'BRL':'symbol':'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="action-buttons">
+      <button type="button" class="btn mt-3" (click)="limparCalculos()">
+        <span class="material-icons">refresh</span>
+        Nova Consulta
+      </button>
+    </div>
+  </div>
+</div>
