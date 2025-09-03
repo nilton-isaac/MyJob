@@ -2,6 +2,13 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
+interface PeriodoSalario {
+  salario: number;
+  dataInicio: string;
+  dataFim: string;
+  id: string;
+}
+
 interface DadosFuncionario {
   salario: number;
   dataAdmissao: string;
@@ -11,6 +18,8 @@ interface DadosFuncionario {
   tipoAvisoPrevio: string;
   diasFeriasVencidas: number;
   saldoFgts: number;
+  periodosSalario: PeriodoSalario[];
+  usarMultiplosSalarios: boolean;
 }
 
 interface ItemResultado {
@@ -33,7 +42,9 @@ export class App {
     temAvisoPrevio: '',
     tipoAvisoPrevio: '',
     diasFeriasVencidas: 0,
-    saldoFgts: 0
+    saldoFgts: 0,
+    periodosSalario: [],
+    usarMultiplosSalarios: false
   };
 
   resultado: ItemResultado[] = [];
@@ -45,17 +56,36 @@ export class App {
   totalFgts: number = 0;
   totalDescontos: number = 0;
   resultadoCalculado: boolean = false;
+  errosValidacao: string[] = [];
 
   calcularRescisao(): void {
     this.limparResultados();
+    this.errosValidacao = [];
 
-    const salario = this.dadosFuncionario.salario;
+    // Validações
+    if (this.dadosFuncionario.usarMultiplosSalarios) {
+      const errosPeriodos = this.validarPeriodos();
+      const errosContrato = this.validarPeriodosComContrato();
+      this.errosValidacao = [...errosPeriodos, ...errosContrato];
+      
+      if (this.errosValidacao.length > 0) {
+        return;
+      }
+    }
+
+    const salario = this.calcularSalarioMedioPonderado();
     const dataAdmissao = new Date(this.dadosFuncionario.dataAdmissao);
     const dataDemissao = new Date(this.dadosFuncionario.dataDemissao);
     const tipoRescisao = this.dadosFuncionario.tipoRescisao;
     
     // Validar se as datas são válidas
     if (isNaN(dataAdmissao.getTime()) || isNaN(dataDemissao.getTime())) {
+      this.errosValidacao.push('Datas de admissão e demissão são obrigatórias.');
+      return;
+    }
+    
+    if (dataAdmissao >= dataDemissao) {
+      this.errosValidacao.push('Data de admissão deve ser anterior à data de demissão.');
       return;
     }
 
@@ -122,21 +152,25 @@ export class App {
 
     // === VALORES FGTS ===
     
-    // FGTS do mês
-    const fgtsMes = (totalBrutoReceber * 0.08);
-    if (fgtsMes > 0) {
-      this.valoresFgts.push({ descricao: 'FGTS do Mês da Rescisão', valor: fgtsMes });
-      totalBrutoFgts += fgtsMes;
+    // Calcular FGTS total do período trabalhado
+    const fgtsPeriodo = this.calcularFgtsPeriodo(dataAdmissao, dataDemissao);
+    if (fgtsPeriodo > 0) {
+      this.valoresFgts.push({ descricao: 'FGTS do Período Trabalhado', valor: fgtsPeriodo });
+      totalBrutoFgts += fgtsPeriodo;
     }
 
-    // Saldo FGTS anterior
-    if (this.dadosFuncionario.saldoFgts > 0) {
-      this.valoresFgts.push({ descricao: 'Saldo FGTS Anterior', valor: this.dadosFuncionario.saldoFgts });
-      totalBrutoFgts += this.dadosFuncionario.saldoFgts;
+    // FGTS sobre valores da rescisão
+    const fgtsRescisao = (totalBrutoReceber * 0.08);
+    if (fgtsRescisao > 0) {
+      this.valoresFgts.push({ descricao: 'FGTS sobre Rescisão', valor: fgtsRescisao });
+      totalBrutoFgts += fgtsRescisao;
     }
+
+    // Saldo FGTS total para cálculo da multa
+    const saldoFgtsTotal = fgtsPeriodo + fgtsRescisao + this.dadosFuncionario.saldoFgts;
 
     // Multa FGTS
-    const multaFgts = this.calcularMultaFgts(this.dadosFuncionario.saldoFgts, tipoRescisao);
+    const multaFgts = this.calcularMultaFgts(saldoFgtsTotal, tipoRescisao);
     if (multaFgts > 0) {
       this.valoresFgts.push({ descricao: 'Multa FGTS 40%', valor: multaFgts });
       totalBrutoFgts += multaFgts;
@@ -220,6 +254,46 @@ export class App {
     return 0;
   }
 
+  private calcularFgtsPeriodo(dataAdmissao: Date, dataDemissao: Date): number {
+    if (this.dadosFuncionario.usarMultiplosSalarios && this.dadosFuncionario.periodosSalario.length > 0) {
+      // Calcular FGTS baseado nos múltiplos salários
+      let fgtsTotal = 0;
+      
+      for (const periodo of this.dadosFuncionario.periodosSalario) {
+        const inicioP = new Date(periodo.dataInicio);
+        const fimP = new Date(periodo.dataFim);
+        
+        // Calcular meses trabalhados neste período
+        const mesesPeriodo = this.calcularMesesEntreDatas(inicioP, fimP);
+        const fgtsPeriodo = periodo.salario * 0.08 * mesesPeriodo;
+        fgtsTotal += fgtsPeriodo;
+      }
+      
+      return fgtsTotal;
+    } else {
+      // Calcular FGTS baseado no salário único
+      const tempoTrabalho = this.calcularTempoTrabalho(dataAdmissao, dataDemissao);
+      const mesesTrabalhados = tempoTrabalho.meses + (tempoTrabalho.dias / 30);
+      return this.dadosFuncionario.salario * 0.08 * mesesTrabalhados;
+    }
+  }
+
+  private calcularMesesEntreDatas(dataInicio: Date, dataFim: Date): number {
+    const anos = dataFim.getFullYear() - dataInicio.getFullYear();
+    const meses = dataFim.getMonth() - dataInicio.getMonth();
+    const dias = dataFim.getDate() - dataInicio.getDate();
+    
+    let totalMeses = anos * 12 + meses;
+    
+    // Se há dias restantes, adicionar proporcionalmente
+    if (dias > 0) {
+      const diasNoMes = new Date(dataFim.getFullYear(), dataFim.getMonth() + 1, 0).getDate();
+      totalMeses += dias / diasNoMes;
+    }
+    
+    return Math.max(0, totalMeses);
+  }
+
   private calcularMultaFgts(saldoFgts: number, tipoRescisao: string): number {
     if (tipoRescisao === 'demissao-sem-justa-causa') {
       return saldoFgts * 0.4;
@@ -238,6 +312,7 @@ export class App {
     this.totalFgts = 0;
     this.totalDescontos = 0;
     this.totalLiquido = 0;
+    this.errosValidacao = [];
   }
 
   private calcularINSS(salarioBase: number): number {
@@ -270,6 +345,131 @@ export class App {
     }
   }
 
+  adicionarPeriodoSalario(): void {
+    const novoPeriodo: PeriodoSalario = {
+      id: Date.now().toString(),
+      salario: 0,
+      dataInicio: '',
+      dataFim: ''
+    };
+    this.dadosFuncionario.periodosSalario.push(novoPeriodo);
+  }
+
+  validarPeriodos(): string[] {
+    const erros: string[] = [];
+    const periodos = this.dadosFuncionario.periodosSalario;
+    
+    if (periodos.length === 0) {
+      erros.push('Adicione pelo menos um período de salário.');
+      return erros;
+    }
+
+    // Validar cada período individualmente
+    for (let i = 0; i < periodos.length; i++) {
+      const periodo = periodos[i];
+      
+      if (!periodo.salario || periodo.salario <= 0) {
+        erros.push(`Período ${i + 1}: Salário deve ser maior que zero.`);
+      }
+      
+      if (!periodo.dataInicio || !periodo.dataFim) {
+        erros.push(`Período ${i + 1}: Datas de início e fim são obrigatórias.`);
+        continue;
+      }
+      
+      const inicio = new Date(periodo.dataInicio);
+      const fim = new Date(periodo.dataFim);
+      
+      if (inicio >= fim) {
+        erros.push(`Período ${i + 1}: Data de início deve ser anterior à data de fim.`);
+      }
+      
+      // Verificar sobreposição com outros períodos
+      for (let j = i + 1; j < periodos.length; j++) {
+        const outroPeriodo = periodos[j];
+        
+        if (!outroPeriodo.dataInicio || !outroPeriodo.dataFim) continue;
+        
+        const outroInicio = new Date(outroPeriodo.dataInicio);
+        const outroFim = new Date(outroPeriodo.dataFim);
+        
+        // Verificar sobreposição
+        if ((inicio <= outroFim && fim >= outroInicio)) {
+          erros.push(`Períodos ${i + 1} e ${j + 1}: Datas não podem se sobrepor.`);
+        }
+      }
+    }
+    
+    return erros;
+  }
+
+  validarPeriodosComContrato(): string[] {
+    const erros: string[] = [];
+    
+    if (!this.dadosFuncionario.dataAdmissao || !this.dadosFuncionario.dataDemissao) {
+      return erros;
+    }
+    
+    const admissao = new Date(this.dadosFuncionario.dataAdmissao);
+    const demissao = new Date(this.dadosFuncionario.dataDemissao);
+    
+    for (let i = 0; i < this.dadosFuncionario.periodosSalario.length; i++) {
+      const periodo = this.dadosFuncionario.periodosSalario[i];
+      
+      if (!periodo.dataInicio || !periodo.dataFim) continue;
+      
+      const inicio = new Date(periodo.dataInicio);
+      const fim = new Date(periodo.dataFim);
+      
+      if (inicio < admissao) {
+        erros.push(`Período ${i + 1}: Data de início não pode ser anterior à admissão.`);
+      }
+      
+      if (fim > demissao) {
+        erros.push(`Período ${i + 1}: Data de fim não pode ser posterior à demissão.`);
+      }
+    }
+    
+    return erros;
+  }
+
+  removerPeriodoSalario(id: string): void {
+    this.dadosFuncionario.periodosSalario = this.dadosFuncionario.periodosSalario.filter(p => p.id !== id);
+  }
+
+  toggleMultiplosSalarios(): void {
+    this.dadosFuncionario.usarMultiplosSalarios = !this.dadosFuncionario.usarMultiplosSalarios;
+    if (this.dadosFuncionario.usarMultiplosSalarios && this.dadosFuncionario.periodosSalario.length === 0) {
+      this.adicionarPeriodoSalario();
+    }
+  }
+
+  private calcularSalarioMedioPonderado(): number {
+    if (!this.dadosFuncionario.usarMultiplosSalarios || this.dadosFuncionario.periodosSalario.length === 0) {
+      return this.dadosFuncionario.salario;
+    }
+
+    let totalDias = 0;
+    let somaPonderada = 0;
+
+    for (const periodo of this.dadosFuncionario.periodosSalario) {
+      if (periodo.dataInicio && periodo.dataFim && periodo.salario > 0) {
+        const dataInicio = new Date(periodo.dataInicio);
+        const dataFim = new Date(periodo.dataFim);
+        const dias = Math.ceil((dataFim.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+        
+        totalDias += dias;
+        somaPonderada += periodo.salario * dias;
+      }
+    }
+
+    return totalDias > 0 ? somaPonderada / totalDias : this.dadosFuncionario.salario;
+  }
+
+  trackByPeriodoId(index: number, periodo: PeriodoSalario): string {
+    return periodo.id;
+  }
+
   limparCalculos(): void {
     this.dadosFuncionario = {
       salario: 0,
@@ -279,7 +479,9 @@ export class App {
       temAvisoPrevio: '',
       tipoAvisoPrevio: '',
       diasFeriasVencidas: 0,
-      saldoFgts: 0
+      saldoFgts: 0,
+      periodosSalario: [],
+      usarMultiplosSalarios: false
     };
     this.limparResultados();
     this.resultadoCalculado = false;

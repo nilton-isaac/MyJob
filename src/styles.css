@@ -447,3 +447,225 @@ body {
     gap: 0.5rem;
   }
 }
+
+/* Estilos para múltiplos salários */
+.form-help {
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.salary-periods-container {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  background: #f8f9fa;
+}
+
+.section-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.help-text {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.help-text-small {
+  color: #666;
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0 0;
+  text-align: center;
+}
+
+.periods-list {
+  margin-bottom: 1.5rem;
+}
+
+.salary-period-item {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--secondary-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.salary-period-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.period-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.period-number {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-color);
+  font-size: 1rem;
+}
+
+.period-number .material-icons {
+  font-size: 20px;
+}
+
+.btn-remove {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease;
+}
+
+.btn-remove:hover {
+  background: #c53030;
+}
+
+.period-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-group .form-label {
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.field-group .form-input {
+  margin-bottom: 0;
+}
+
+.add-period-section {
+  text-align: center;
+  padding: 1rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--secondary-color);
+}
+
+.btn-secondary {
+  background: var(--secondary-color);
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--hover-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+/* Responsividade para múltiplos salários */
+@media (max-width: 768px) {
+  .period-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .salary-periods-container {
+    padding: 1rem;
+  }
+  
+  .salary-period-item {
+    padding: 1rem;
+  }
+  
+  .period-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+  
+  .period-number {
+    justify-content: center;
+  }
+}
+
+/* Estilos para erros de validação */
+.validation-errors {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc2626;
+  margin-bottom: 0.75rem;
+}
+
+.error-header .material-icons {
+  font-size: 20px;
+}
+
+.error-list {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.error-item {
+  color: #dc2626;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.error-item:last-child {
+  margin-bottom: 0;
+}
