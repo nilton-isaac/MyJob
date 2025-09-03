@@ -1,60 +1,139 @@
-# MyJob
+# 💼 Calculadora de Rescisão Trabalhista - MyJob
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+Uma aplicação web moderna e intuitiva para calcular rescisões trabalhistas de acordo com a legislação brasileira.
 
-## Development server
+## 🚀 Funcionalidades
 
-To start a local development server, run:
+- ✅ **Cálculo Completo de Rescisão**: Saldo de salário, férias, 13º salário, FGTS e multa
+- ✅ **Interface Responsiva**: Funciona perfeitamente em desktop e mobile
+- ✅ **Validação Inteligente**: Campos obrigatórios e validação de datas
+- ✅ **Resultados Detalhados**: Breakdown completo de todos os valores
+- ✅ **Tipos de Rescisão**: Suporte para demissão sem justa causa, pedido de demissão, etc.
+- ✅ **Aviso Prévio**: Cálculo automático baseado no tipo de rescisão
 
+## 🛠️ Tecnologias Utilizadas
+
+- **Angular 20.2.0** - Framework principal
+- **TypeScript** - Linguagem de programação
+- **CSS3** - Estilização responsiva
+- **Angular Forms** - Gerenciamento de formulários
+
+## 📋 Pré-requisitos
+
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+- Angular CLI
+
+## 🔧 Instalação e Configuração
+
+### 1. Clone o repositório
 ```bash
+git clone <url-do-repositorio>
+cd calculadora-rescisao
+```
+
+### 2. Instale as dependências
+```bash
+npm install
+```
+
+### 3. Inicie o servidor de desenvolvimento
+```bash
+npm start
+# ou
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+A aplicação estará disponível em `http://localhost:4200/`
 
-## Code scaffolding
+## 📁 Estrutura do Projeto
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```
+calculadora-rescisao/
+├── src/
+│   ├── app/
+│   │   ├── app.component.ts    # Componente principal
+│   │   ├── app.component.html  # Template da aplicação
+│   │   └── app.component.css   # Estilos da aplicação
+│   ├── index.html              # Página principal
+│   ├── main.ts                 # Ponto de entrada
+│   └── styles.css              # Estilos globais
+├── public/
+│   └── favicon.ico             # Ícone da aplicação
+├── vercel.json                 # Configuração do Vercel
+├── DEPLOY.md                   # Guia de deploy
+└── package.json                # Dependências e scripts
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## 🎯 Como Usar
+
+1. **Preencha os dados do funcionário**:
+   - Salário mensal
+   - Data de admissão
+   - Data de demissão
+   - Tipo de rescisão
+
+2. **Configure opções adicionais** (se aplicável):
+   - Aviso prévio (trabalhado/indenizado)
+   - Dias de férias vencidas
+   - Saldo do FGTS
+
+3. **Clique em "Calcular Rescisão"**
+
+4. **Visualize os resultados detalhados**:
+   - Valores a receber
+   - Descontos aplicáveis
+   - Total líquido
+
+## 🧮 Cálculos Incluídos
+
+- **Saldo de Salário**: Proporcional aos dias trabalhados
+- **Férias Vencidas**: Férias não gozadas + 1/3 constitucional
+- **Férias Proporcionais**: Baseado no tempo trabalhado
+- **13º Salário**: Proporcional aos meses trabalhados
+- **FGTS**: 8% sobre remunerações + multa (quando aplicável)
+- **Aviso Prévio**: Indenizado quando aplicável
+
+## 🚀 Deploy
+
+### Deploy no Vercel (Recomendado)
+
+1. Faça push do código para GitHub/GitLab
+2. Conecte seu repositório no [Vercel](https://vercel.com)
+3. Configure:
+   - Framework: **Angular**
+   - Build Command: `npm run vercel-build`
+   - Output Directory: `dist/calculadora-rescisao`
+4. Deploy automático!
+
+Para mais detalhes, consulte o arquivo [DEPLOY.md](./DEPLOY.md)
+
+## 📜 Scripts Disponíveis
 
 ```bash
-ng generate --help
+npm start          # Inicia servidor de desenvolvimento
+npm run build      # Build para produção
+npm run vercel-build # Build otimizado para Vercel
+npm test           # Executa testes
+npm run watch      # Build em modo watch
 ```
 
-## Building
+## 🤝 Contribuição
 
-To build the project run:
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-funcionalidade`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova funcionalidade'`)
+4. Push para a branch (`git push origin feature/nova-funcionalidade`)
+5. Abra um Pull Request
 
-```bash
-ng build
-```
+## 📄 Licença
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## Running unit tests
+## 👨‍💻 Desenvolvido por
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+**MyJob** - Soluções em Recursos Humanos
 
-```bash
-ng test
-```
+---
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
->>>>>>> 7aca289 (primeiro commit)
+⭐ Se este projeto foi útil para você, considere dar uma estrela no repositório!
